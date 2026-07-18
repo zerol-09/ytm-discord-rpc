@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "YTMusic RPC",
+  "version": "1.0",
+  "description": "Sends current YouTube Music data to Discord Status",
+  "content_scripts": [
+    {
+      "matches": ["https://music.youtube.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["https://music.youtube.com/*"]
+    }
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:5000/*"
+  ]
+}
