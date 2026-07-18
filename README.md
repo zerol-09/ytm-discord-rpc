@@ -93,7 +93,13 @@ chrome://extensions/
 ytm-extension/
 ```
 
-### Python Backend
+## Python Backend
+
+Navigate to the backend folder:
+
+```bash
+cd ytm-rpc
+```
 
 Install required packages:
 
