@@ -19,6 +19,12 @@ This project consists of a browser extension that extracts YouTube Music playbac
   * A new song starts
   * Playback is paused/resumed
   * The user seeks through a song
+* Automatically launches the backend when Discord starts
+* Automatically stops backend processes when Discord closes
+* Automatically restarts backend processes if they unexpectedly crash
+* Prevents duplicate launcher instances
+* First-time Discord Application ID setup
+* Saves user configuration automatically
 
 ## How It Works
 
@@ -56,6 +62,7 @@ The Python backend:
 * Receives song data from the extension
 * Processes playback information
 * Updates Discord Rich Presence using Discord RPC
+* Automatically manages backend processes through the launcher
 
 ## Project Structure
 
@@ -70,7 +77,8 @@ ytm-discord-rpc/
 └── ytm-rpc/
     ├── server.py
     ├── rpc.py
-    └── launcher.py
+    ├── launcher.py
+    └── requirements.txt
 ```
 
 ## Installation
@@ -113,12 +121,20 @@ Run the backend:
 python launcher.py
 ```
 
+Or download the latest release from the **Releases** page and run:
+
+```
+YTMDiscordRPCLauncher.exe
+```
+
+On first launch, the application will ask for your Discord Application ID and save it automatically for future launches.
+
 Open YouTube Music and start playing a song.
 
 ## Requirements
 
 * Google Chrome
-* Python 3.11
+* Python 3.11 (only if building from source)
 * Discord Desktop Application
 * YouTube Music account
 
