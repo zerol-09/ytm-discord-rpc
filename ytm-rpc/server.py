@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import socket
+import sys
 
 app = Flask(__name__)
 CORS(app)
@@ -50,5 +52,19 @@ def song():
 def current():
     return jsonify({"title": current_title, "artist": current_artist, "thumbnail": current_thumbnail, "duration": current_duration, "position": current_position, "playing": current_playing, "time": current_time})
 
+
+def port_in_use(host: str, port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        return sock.connect_ex((host, port)) == 0
+
+
+if port_in_use("127.0.0.1", 5000):
+    print("Server is already running.")
+    sys.exit(0)
+
 if __name__ == "__main__":
+    if port_in_use("127.0.0.1", 5000):
+        print("Server is already running.")
+        sys.exit(0)
+
     app.run(host="127.0.0.1", port=5000)

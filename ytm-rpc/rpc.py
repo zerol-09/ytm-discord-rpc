@@ -2,9 +2,92 @@ import asyncio
 import requests
 from pypresence import ActivityType, AioPresence, StatusDisplayType
 from ytmusicapi import YTMusic
+import json
+import sys
+from pathlib import Path
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+
 yt_music = YTMusic()
 
-CLIENT_ID = "ENTER YOUR BOT ID" 
+def get_app_folder() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+
+    return Path(__file__).resolve().parent
+
+
+def get_config_path() -> Path:
+    return get_app_folder() / "config.json"
+
+
+def is_valid_application_id(application_id: str) -> bool:
+    return application_id.isdigit() and 15 <= len(application_id) <= 25
+
+
+def ask_for_application_id() -> str:
+    root = tk.Tk()
+    root.withdraw()
+
+    while True:
+        application_id = simpledialog.askstring(
+            "YouTube Music Discord RPC",
+            "Enter your Discord Application ID:",
+            parent=root,
+        )
+
+        if application_id is None:
+            root.destroy()
+            raise SystemExit("Setup cancelled")
+
+        application_id = application_id.strip()
+
+        if is_valid_application_id(application_id):
+            root.destroy()
+            return application_id
+
+        messagebox.showerror(
+            "Invalid Application ID",
+            "The Application ID must contain only numbers.",
+            parent=root,
+        )
+
+
+def save_application_id(application_id: str) -> None:
+    config_path = get_config_path()
+
+    config = {
+        "discord_application_id": application_id
+    }
+
+    with config_path.open("w", encoding="utf-8") as file:
+        json.dump(config, file, indent=4)
+
+
+def load_application_id() -> str:
+    config_path = get_config_path()
+
+    if config_path.exists():
+        try:
+            with config_path.open("r", encoding="utf-8") as file:
+                config = json.load(file)
+
+            application_id = str(
+                config.get("discord_application_id", "")
+            ).strip()
+
+            if is_valid_application_id(application_id):
+                return application_id
+
+        except (OSError, json.JSONDecodeError):
+            pass
+
+    application_id = ask_for_application_id()
+    save_application_id(application_id)
+
+    return application_id
+
+CLIENT_ID = load_application_id()
 rpc = AioPresence(CLIENT_ID)
 is_connected = False
 
@@ -61,6 +144,7 @@ async def main():
                     safe_state = artist_string if len(artist_string) <= 128 else artist_string[:125] + "..."
                     thumbnail_url = media_info['thumbnail'] if media_info['thumbnail'] else None
                     await rpc.update(
+                        name="YouTube Music",
                         activity_type=ActivityType.LISTENING,
                         status_display_type=StatusDisplayType.DETAILS,
                         details=safe_details,

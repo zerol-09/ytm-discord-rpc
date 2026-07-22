@@ -1,0 +1,9 @@
+ytm-rpc/build/
+ytm-rpc/dist/
+ytm-rpc/.vscode/
+
+__pycache__/
+*.py[cod]
+*.spec
+*.log
+config.json
