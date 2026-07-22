@@ -124,7 +124,7 @@ python launcher.py
 Or download the latest release from the **Releases** page and run:
 
 ```
-YTMDiscordRPCLauncher.exe
+launcher.exe
 ```
 
 On first launch, the application will ask for your Discord Application ID and save it automatically for future launches.
