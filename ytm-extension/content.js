@@ -89,6 +89,8 @@ function senddata() {
     if (!title || !artist || !thumbnail || !lastId) return;
     if ( title === lastsong.title && artist === lastsong.artist && thumbnail === lastsong.thumbnail && isPlaying === lastsong.isPlaying && !time_drifted ) return;
     
+    lastsong = { lastId, title, artist, thumbnail, isPlaying };
+    
     console.log("Sending song data:", lastId, title, artist, thumbnail, duration, position, isPlaying, time);
     fetch("http://127.0.0.1:5000/song", {
         method: "POST",
@@ -106,24 +108,8 @@ function senddata() {
             time: time
         })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        console.log("Sent song data");
-
-        lastsong = {
-            lastId,
-            title,
-            artist,
-            thumbnail,
-            isPlaying
-        };
-    })
-    .catch(err => {
-        console.error("FETCH ERROR:", err);
-    });
+    .then(() => console.log("Sent song data:", lastId, title, artist, thumbnail, duration, position, isPlaying, time))
+    .catch(err => console.error("FETCH ERROR:", err));
     
 }
 
