@@ -57,11 +57,6 @@ def port_in_use(host: str, port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         return sock.connect_ex((host, port)) == 0
 
-
-if port_in_use("127.0.0.1", 5000):
-    print("Server is already running.")
-    sys.exit(0)
-
 if __name__ == "__main__":
     if port_in_use("127.0.0.1", 5000):
         print("Server is already running.")
