@@ -1,6 +1,7 @@
 import asyncio
 import requests
 from pypresence import ActivityType, AioPresence, StatusDisplayType
+from pypresence.exceptions import PipeClosed
 from ytmusicapi import YTMusic
 import json
 import sys
@@ -88,18 +89,86 @@ def load_application_id() -> str:
     return application_id
 
 CLIENT_ID = load_application_id()
-rpc = AioPresence(CLIENT_ID)
+rpc = None
 is_connected = False
 
 async def ensure_rpc_connected():
-    global is_connected
-    if not is_connected:
+    global rpc, is_connected
+
+    if is_connected and rpc is not None:
+        return True
+
+    try:
+        rpc = AioPresence(CLIENT_ID)
+        await rpc.connect()
+
+        is_connected = True
+        print("Connected to Discord RPC")
+        return True
+
+    except Exception as e:
+        print(f"Failed to connect to Discord: {e}")
+
+        rpc = None
+        is_connected = False
+        return False
+
+
+async def reset_rpc_connection():
+    global rpc, is_connected
+
+    is_connected = False
+
+    if rpc is not None:
         try:
-            await rpc.connect()
-            is_connected = True
-        except Exception as e:
-            print(f"Failed to connect to Discord: {e}")
-            is_connected = False
+            await rpc.close()
+        except Exception:
+            pass
+
+    rpc = None
+
+
+async def safe_rpc_clear():
+    global rpc
+
+    if not await ensure_rpc_connected():
+        return
+
+    try:
+        await rpc.clear()
+
+    except (PipeClosed, ConnectionResetError, BrokenPipeError) as e:
+        print(f"RPC connection closed while clearing: {e}")
+        await reset_rpc_connection()
+
+    except Exception as e:
+        print(f"Failed to clear RPC: {e}")
+        await reset_rpc_connection()
+
+
+async def safe_rpc_update(**kwargs):
+    global rpc
+
+    if not await ensure_rpc_connected():
+        return
+
+    try:
+        await rpc.update(**kwargs)
+
+    except (PipeClosed, ConnectionResetError, BrokenPipeError) as e:
+        print(f"RPC connection closed while updating: {e}")
+        await reset_rpc_connection()
+
+        if await ensure_rpc_connected():
+            try:
+                await rpc.update(**kwargs)
+            except Exception as retry_error:
+                print(f"RPC update retry failed: {retry_error}")
+                await reset_rpc_connection()
+
+    except Exception as e:
+        print(f"Failed to update RPC: {e}")
+        await reset_rpc_connection()
 
 async def get_active_media_info():
 
@@ -145,7 +214,7 @@ async def main():
                     safe_state = artist_string if len(artist_string) <= 128 else artist_string[:125] + "..."
                     thumbnail_url = media_info['thumbnail'] if media_info['thumbnail'] else None
                     song_url = media_info['id'] if media_info['id'] else None
-                    await rpc.update(
+                    await safe_rpc_update(
                         name="YouTube Music",
                         activity_type=ActivityType.LISTENING,
                         status_display_type=StatusDisplayType.DETAILS,
@@ -166,7 +235,7 @@ async def main():
         else:
             if last_track is not None:
                 if is_connected:
-                    await rpc.clear()
+                    await safe_rpc_clear()
                 print("Media stopped. Cleared Discord RPC.")
                 last_track = None
                 last_position = -1
