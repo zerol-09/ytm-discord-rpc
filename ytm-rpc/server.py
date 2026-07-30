@@ -18,9 +18,11 @@ current_duration = 0
 current_position = 0
 current_playing = False
 current_time = 0
+current_id = ""
 
 @app.route("/song", methods=["POST"])
 def song():
+    global current_id
     global current_title
     global current_artist
     global current_thumbnail
@@ -30,6 +32,7 @@ def song():
     global current_time
     
     data = request.json
+    current_id = data.get("id")
     current_title = data.get("title")
     current_artist = data.get("artist")
     current_thumbnail = data.get("thumbnail")
@@ -38,6 +41,7 @@ def song():
     current_playing = data.get("isPlaying")
     current_time = data.get("time")
 
+    print("CURRENT ID:", current_id)
     print("CURRENT TITLE:", current_title)
     print("CURRENT ARTIST:", current_artist)
     print("CURRENT THUMBNAIL:", current_thumbnail)
@@ -50,7 +54,7 @@ def song():
 
 @app.route("/current")
 def current():
-    return jsonify({"title": current_title, "artist": current_artist, "thumbnail": current_thumbnail, "duration": current_duration, "position": current_position, "playing": current_playing, "time": current_time})
+    return jsonify({"id": current_id, "title": current_title, "artist": current_artist, "thumbnail": current_thumbnail, "duration": current_duration, "position": current_position, "playing": current_playing, "time": current_time})
 
 
 def port_in_use(host: str, port: int) -> bool:

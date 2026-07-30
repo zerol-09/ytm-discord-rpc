@@ -104,6 +104,7 @@ async def ensure_rpc_connected():
 async def get_active_media_info():
 
     response = requests.get("http://127.0.0.1:5000/current").json()
+    id = response.get("id")
     title = response.get("title")
     artist = response.get("artist")
     thumbnail = response.get("thumbnail")
@@ -112,7 +113,7 @@ async def get_active_media_info():
     isplaying = response.get("playing")
     time = response.get("time")
 
-    return {"title": title, "artist": artist, "thumbnail": thumbnail, "duration": duration, "position": position, "playing": isplaying, "time": time}
+    return {"id": id, "title": title, "artist": artist, "thumbnail": thumbnail, "duration": duration, "position": position, "playing": isplaying, "time": time}
 
 async def main():
     print("Listening for system audio changes and song lengths...")
@@ -143,11 +144,13 @@ async def main():
                     artist_string = f"by {media_info['artist']}"
                     safe_state = artist_string if len(artist_string) <= 128 else artist_string[:125] + "..."
                     thumbnail_url = media_info['thumbnail'] if media_info['thumbnail'] else None
+                    song_url = media_info['id'] if media_info['id'] else None
                     await rpc.update(
                         name="YouTube Music",
                         activity_type=ActivityType.LISTENING,
                         status_display_type=StatusDisplayType.DETAILS,
                         details=safe_details,
+                        details_url=song_url,
                         state=safe_state,
                         start=start_timestamp,
                         end=end_timestamp,
