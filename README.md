@@ -194,13 +194,16 @@ Alternatively, download the latest release from the **Releases** page.
 
 ## Optional: Start Automatically with Windows
 
-If you want the Rich Presence to start automatically whenever you log in:
+To start the application automatically when you sign in:
 
-1. Press **Win + R**.
-2. Type `shell:startup` and press **Enter**.
-3. Copy `launcher.exe` (or a shortcut to it) into the Startup folder.
+1. Keep `launcher.exe`, `rpc.exe`, and `server.exe` together in the same folder.
+2. Right-click `launcher.exe` and select **Create shortcut**.
+3. Press **Win + R**.
+4. Type `shell:startup` and press **Enter**.
+5. Move the shortcut into the Startup folder.
 
-The application will now launch automatically each time you sign in to Windows.
+Do not move `launcher.exe` itself into the Startup folder. Only place its shortcut there.
+
 ## License
 
 This project is for educational and personal use.
