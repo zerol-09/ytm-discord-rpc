@@ -121,32 +121,86 @@ Run the backend:
 python launcher.py
 ```
 
-Or download the latest release from the **Releases** page and run:
+# Building Executables
 
+This project uses **PyInstaller** to package the Python scripts into standalone Windows executables.
+
+## Prerequisites
+
+Install PyInstaller:
+
+```bash
+py -m pip install pyinstaller
 ```
-launcher.exe
+
+Navigate to the folder containing the Python scripts:
+
+```bash
+cd ytm-rpc
 ```
 
-On first launch, the application will ask for your Discord Application ID and save it automatically for future launches.
+## Build `rpc.exe`
 
-Open YouTube Music and start playing a song.
+```bash
+py -m PyInstaller --onefile --windowed --clean --collect-all ytmusicapi --name rpc rpc.py
+```
+
+## Build `server.exe`
+
+```bash
+py -m PyInstaller --onefile --windowed --clean --name server server.py
+```
+
+## Build `launcher.exe`
+
+```bash
+py -m PyInstaller --onefile --windowed --clean --name launcher launcher.py
+```
+
+## Output
+
+After building, the executables will be located in the `dist` folder:
+
+```text
+dist/
+├── rpc.exe
+├── server.exe
+└── launcher.exe
+```
+
+---
+
+## Running the Application
+
+Alternatively, download the latest release from the **Releases** page.
+
+1. Run `launcher.exe`.
+2. On first launch, enter your Discord Application ID when prompted.
+3. The application will save the ID automatically for future launches.
+4. Open YouTube Music and start playing a song.
+
+---
 
 ## Requirements
 
-* Google Chrome
-* Python 3.11 (only if building from source)
-* Discord Desktop Application
-* YouTube Music account
+- Google Chrome
+- Discord Desktop Application
+- YouTube Music account
 
-## Future Improvements
+### Only required if building from source
 
-Possible improvements:
+- Python 3.11 or later
+- PyInstaller
 
-* Better playback synchronization
-* Improved error handling
-* Easier installation process
-* Support for additional music platforms
+## Optional: Start Automatically with Windows
 
+If you want the Rich Presence to start automatically whenever you log in:
+
+1. Press **Win + R**.
+2. Type `shell:startup` and press **Enter**.
+3. Copy `launcher.exe` (or a shortcut to it) into the Startup folder.
+
+The application will now launch automatically each time you sign in to Windows.
 ## License
 
 This project is for educational and personal use.
